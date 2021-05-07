@@ -7,47 +7,59 @@ import random as rd
 def init_centroids(x, k):
     centroids = pd.DataFrame()
     for i in range(0, k):
+        # Garante que não vamos adicionar dois centroides no mesmo lugar inicial. Gerando sempre um novo aleatório.
         while len(centroids.drop_duplicates()) != i + 1:
-            rand = rd.randint(0, x.shape[0])
+            rand = rd.randint(0, x.shape[0]) #valor aleatorio entre zero e o numero de linhas (valores de entrada)
             centroids = centroids.append(x.iloc[rand])
 
     return centroids
 
 
-def kmeans(d, k):
+def kmeans(d, k, max_iterations=10, decimal_precision=3):
     """
     :param d: Data
     :param k: K-Clusters
     :return: Clusters
     """
-    # Escolhe centroides aleatorios
+    # Escolhe centroides aleatorios não iguais
+    global clusters
     centroids = init_centroids(d, k)
-    m = d.shape[0]
-
-    # compute euclidian distances and assign clusters
-    for n in range(10):  # While(not alteration):
-        #
-        # Implementar iterações continuas até que não
-        #   haja alteração nos clusters
-        #
+    centroids.astype(float).round(decimals=decimal_precision)
+    m = d.shape[0] #numero de linhas
+    changed = True
+    curr_iteration = 0
+    # Calcula distancia Euclideanea
+    while ((max_iterations > curr_iteration) and changed):
+        curr_iteration += 1
         distance = pd.DataFrame()
         for i in range(k):
+            #Serie com a distancia calculada para cada um dos pontos.
             tempDist = np.sum((d - centroids.iloc[i]) ** 2, axis=1)
+            #Matriz com a distancia de cada centroide para cada ponto.
             distance = pd.concat([distance, tempDist], axis=1, ignore_index=True)
 
+        #Cada ponte aponta pra o cluster que pertence
         min_dist = distance.idxmin(axis='columns')
-        # adjust the centroids
+
         clusters = {}
+        #Ajusta os centroides
         for i in range(k):
             clusters[i] = pd.DataFrame()
         for i in range(m):
             clusters[min_dist.iloc[i]] = clusters[min_dist.iloc[i]].append(d.iloc[i])
 
-        centroids = centroids[0:0]              # Apaga os centroides antigos
+        new_centroid = pd.DataFrame()
+        new_centroid = new_centroid[0:0]  # Apaga os centroides antigos
         for i in range(k):
-            centroids = centroids.append(clusters[i].mean(), ignore_index=True)
+            new_centroid = new_centroid.append(clusters[i].mean(), ignore_index=True)
 
-    return clusters
+        new_centroid = new_centroid.astype(float).round(decimals=decimal_precision)
+        if centroids.equals(new_centroid):
+            changed = False
+        else:
+            centroids = new_centroid
+
+    return clusters, curr_iteration
 
 
 def WCSS(k, y, centroids):
