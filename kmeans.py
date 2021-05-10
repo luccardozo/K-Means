@@ -27,26 +27,27 @@ def kmeans(d, k):
 
     :return: Clusters
     """
-    max_iterations = 10
+    max_iterations = 100
     decimal_precision = 3
     # Escolhe centroides aleatorios não iguais
     global clusters
     centroids = init_centroids(d, k)
+
     centroids.astype(float).round(decimals=decimal_precision)
     m = d.shape[0]  # numero de linhas
     changed = True
     curr_iteration = 0
     # Calcula distancia Euclideanea
-    while (max_iterations > curr_iteration) or changed:
+    while (max_iterations > curr_iteration) and changed:
         curr_iteration += 1
         distance = pd.DataFrame()
         for i in range(k):
             # Serie com a distancia calculada para cada um dos pontos.
             tempDist = np.sum((d - centroids.iloc[i]) ** 2, axis=1)
+
             # Matriz com a distancia de cada centroide para cada ponto.
             distance = pd.concat([distance, tempDist], axis=1, ignore_index=True)
 
-        # Cada ponte aponta pra o cluster que pertence
         min_dist = distance.idxmin(axis='columns')
 
         # Separa os clusters e adiciona as linhas no dicionario
@@ -62,6 +63,7 @@ def kmeans(d, k):
             new_centroid = new_centroid.append(clusters[i].mean(), ignore_index=True)
 
         new_centroid = new_centroid.astype(float).round(decimals=decimal_precision)
+
         if centroids.equals(new_centroid):
             changed = False
         else:
@@ -84,6 +86,6 @@ if dtype == 'string':
     tempDist = np.sum(d.eq(centroids.iloc[i], axis=1) * -1, axis=1)
 
 if dtype == 'string':
-    centroids = centroids.append(clusters[i].mode(axis=0).iloc[0], ignore_index=True)
+     new_centroid = new_centroid.append(clusters[i].mode(axis=0).iloc[0], ignore_index=True)
     
 """
