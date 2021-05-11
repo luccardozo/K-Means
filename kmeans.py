@@ -9,13 +9,13 @@ def cat_to_num(d, categorical):
     return d
 
 
-def init_centroids(x, k):
+def init_centroids(d, k):
     centroids = pd.DataFrame()
     for i in range(0, k):
         # Garante que não vamos adicionar dois centroides no mesmo lugar inicial. Gerando sempre um novo aleatório.
         while len(centroids.drop_duplicates()) != i + 1:
-            rand = rd.randint(0, x.shape[0])  # valor aleatorio entre zero e o numero de linhas (valores de entrada)
-            centroids = centroids.append(x.iloc[rand])
+            rand = rd.randint(0, d.shape[0])  # valor aleatorio entre zero e o numero de linhas (valores de entrada)
+            centroids = centroids.append(d.iloc[rand])
 
     return centroids
 
@@ -48,6 +48,8 @@ def kmeans(d, k):
             # Matriz com a distancia de cada centroide para cada ponto.
             distance = pd.concat([distance, tempDist], axis=1, ignore_index=True)
 
+        # Matriz: m x 2
+        # onde cada linha é a entrada do dataset e a coluna é cluster que aquela entrada pertence.
         min_dist = distance.idxmin(axis='columns')
 
         # Separa os clusters e adiciona as linhas no dicionario
@@ -57,16 +59,17 @@ def kmeans(d, k):
         for i in range(m):
             clusters[min_dist.iloc[i]] = clusters[min_dist.iloc[i]].append(d.iloc[i])
 
-        new_centroid = pd.DataFrame()
-        new_centroid = new_centroid[0:0]  # Apaga os centroides antigos
+        new_centroids = pd.DataFrame()
+        new_centroids = new_centroids[0:0]  # Novos centroides que irão ser comparados com os antigos
         for i in range(k):
-            new_centroid = new_centroid.append(clusters[i].mean(), ignore_index=True)
+            new_centroids = new_centroids.append(clusters[i].mean(), ignore_index=True)
 
-        new_centroid = new_centroid.astype(float).round(decimals=decimal_precision)
+        new_centroid = new_centroids.astype(float).round(decimals=decimal_precision)
 
+        #verifica se houve alteração
         if centroids.equals(new_centroid):
             changed = False
-        else:
+        else: #Não havendo alteração, altera os centroides.
             centroids = new_centroid
 
     return clusters, curr_iteration, WCSS(k, clusters, centroids)
