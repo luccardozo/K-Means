@@ -16,7 +16,6 @@ wcss_array = {'Hobbies': np.array([]),
               'Socio': np.array([]),
               'Spend': np.array([])}
 
-
 iter_array = {'Hobbies': np.array([]),
               'Music': np.array([]),
               'Person': np.array([]),
@@ -50,4 +49,47 @@ for key, array in wcss_array.items():
     plt.title('Iterations for Dataset ' + key)
     plt.show()
 
+"""
+
+##################################
+# Após a seleção do k ótimo visulamente
+##################################
+cl = pd.DataFrame()
+"""
+# Hobbies
+cluster, it, wcss = kmeans(data['Hobbies'], 6)
+for i in range(6):
+    pd.DataFrame.from_dict(cluster[i]).to_csv('Hobbies' + str(i) + '.csv')
+
+
+# Music and Movies
+cluster, it, wcss = kmeans(data['Music'], 5)
+for i in range(5):
+    pd.DataFrame.from_dict(cluster[i]).to_csv('Music' + str(i) + '.csv')
+
+
+# Person
+cluster, it, wcss = kmeans(data['Person'], 6)
+for i in range(6):
+    pd.DataFrame.from_dict(cluster[i]).to_csv('Person' + str(i) + '.csv')
+
+
+# Phobia
+cluster, it, wcss = kmeans(data['Phobia'], 4)
+for i in range(4):
+    pd.DataFrame.from_dict(cluster[i]).to_csv('Phobia' + str(i) + '.csv')
+
+
+
+# Socio
+cluster, it, wcss = kmeans(data['Socio'], 3)
+for i in range(3):
+    pd.DataFrame.from_dict(cluster[i]).to_csv('Socio' + str(i) + '.csv')
+
+
+
+# Spend
+cluster, it, wcss = kmeans(data['Spend'], 4)
+for i in range(4):
+    pd.DataFrame.from_dict(cluster[i]).to_csv('Spend' + str(i) + '.csv')
 """
